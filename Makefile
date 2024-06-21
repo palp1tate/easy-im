@@ -5,6 +5,9 @@ help:
 	@echo "  make dev-up                 Start the development environment"
 	@echo "  make dev-stop               Stop the development environment"
 	@echo "  make dev-down               Clean the development environment"
+	@echo "  make prod-up                Start the production environment"
+	@echo "  make prod-stop              Stop the production environment"
+	@echo "  make prod-down              Clean the production environment"
 	@echo "  make etcd                   Get etcd key"
 	@echo "  make status                 Show the status of the containers"
 
@@ -23,6 +26,21 @@ dev-stop:
 .PHONY: dev-down
 dev-down:
 	docker-compose down
+
+# Start production environment
+.PHONY: prod-up
+prod-up:
+	docker-compose -f docker-compose.prod.yml up -d
+
+# Stop production environment
+.PHONY: prod-stop
+prod-stop:
+	docker-compose -f docker-compose.prod.yml stop
+
+# Clean production environment
+.PHONY: prod-down
+prod-down:
+	docker-compose -f docker-compose.prod.yml down
 
 # Get etcd key
 .PHONY: etcd
