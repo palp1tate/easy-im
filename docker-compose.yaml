@@ -1,0 +1,70 @@
+name: easy-im
+
+services:
+  etcd:
+    image: bitnami/etcd:latest
+    container_name: easy-im-etcd
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    environment:
+      - ETCD_ENABLE_V2=true
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_NAME=etcd
+    volumes:
+      - ./components/etcd/data:/bitnami/etcd/data
+      - ./components/etcd/logs:/bitnami/etcd/logs
+    networks:
+      easy-im:
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    container_name: easy-im-redis
+    volumes:
+      - ./components/redis/data:/data
+    environment:
+      TZ: Asia/Shanghai
+    restart: unless-stopped
+    networks:
+      easy-im:
+
+  mysql:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    container_name: easy-im-mysql
+    volumes:
+      - ./components/mysql/data:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    restart: unless-stopped
+    networks:
+      easy-im:
+    command: [ "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci" ]
+
+  user-rpc:
+    image: easy-im-user-rpc:latest
+    container_name: easy-im-user-rpc
+    build:
+      context: .
+      dockerfile: deploy/dockerfile/user-rpc.Dockerfile
+    ports:
+      - "5001:5001"
+    depends_on:
+      - etcd
+      - redis
+      - mysql
+    volumes:
+      - ./apps/user/rpc/etc/user.yaml:/app/apps/etc/user.yaml
+    restart: unless-stopped
+    networks:
+      easy-im:
+
+networks:
+  easy-im:
+    driver: bridge
