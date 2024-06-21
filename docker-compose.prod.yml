@@ -37,11 +37,12 @@ services:
     ports:
       - "3306:3306"
     container_name: easy-im-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
     volumes:
       - ./components/mysql/data:/var/lib/mysql
       - /etc/localtime:/etc/localtime:ro
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     restart: unless-stopped
     networks:
       easy-im:

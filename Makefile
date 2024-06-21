@@ -15,6 +15,7 @@ help:
 # Start development environment
 .PHONY: dev-up
 dev-up:
+	docker-compose build
 	docker-compose up -d
 
 # Stop development environment
