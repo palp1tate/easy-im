@@ -5,7 +5,10 @@ go 1.22.0
 require (
 	github.com/edwingeng/wuid v1.0.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/zeromicro/go-zero v1.6.5
+	github.com/jinzhu/copier v0.4.0
+	github.com/pkg/errors v0.9.1
+	github.com/zeromicro/go-zero v1.6.6
+	github.com/zeromicro/x v0.0.0-20240408115609-8224c482b07e
 	golang.org/x/crypto v0.24.0
 	google.golang.org/grpc v1.64.0
 	google.golang.org/protobuf v1.34.2
@@ -20,7 +23,7 @@ require (
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/edwingeng/slog v0.0.0-20240515002209-69a346c97c5b // indirect
+	github.com/edwingeng/slog v0.0.0-20240622040934-f32e34a129ab // indirect
 	github.com/emicklei/go-restful/v3 v3.12.1 // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect

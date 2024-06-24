@@ -10,7 +10,7 @@ RUN go env -w GOPROXY=https://goproxy.cn,direct
 
 RUN go mod download
 
-RUN CGO_ENABLED=0 go build -ldflags "-s -w" -o user-rpc ./apps/user/rpc/user.go
+RUN CGO_ENABLED=0 go build -ldflags "-s -w" -o user-rpcserver ./apps/user/rpcserver/user.go
 
 FROM alpine:latest
 
@@ -29,7 +29,7 @@ COPY --from=builder /app/user-rpc ./
 COPY --from=builder /app/apps/user/rpc/etc/user.yaml ./etc/user.yaml
 
 # 设置可执行权限
-RUN chmod +x user-rpc
+RUN chmod +x user-rpcserver
 
 # 设置容器启动时执行的命令
 ENTRYPOINT ["./user-rpc", "-f", "./etc/user.yaml"]
@@ -83,7 +83,7 @@ ENTRYPOINT ["./user-rpc", "-f", "./etc/user.yaml"]
 #ENV TZ=Asia/Shanghai
 #
 #ARG SERVER_NAME=user
-#ARG SERVER_TYPE=rpc
+#ARG SERVER_TYPE=rpcserver
 #
 #ENV RUN_BIN bin/${SERVER_NAME}-${SERVER_TYPE}
 #ENV RUN_CONF /${SERVER_NAME}/conf/${SERVER_NAME}.yaml

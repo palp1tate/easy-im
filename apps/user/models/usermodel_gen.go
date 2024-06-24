@@ -29,6 +29,8 @@ type (
 		Insert(ctx context.Context, data *User) (sql.Result, error)
 		FindOne(ctx context.Context, id string) (*User, error)
 		FindByPhone(ctx context.Context, phone string) (*User, error)
+		ListByName(ctx context.Context, name string) ([]*User, error)
+		ListByIds(ctx context.Context, ids []string) ([]*User, error)
 		Update(ctx context.Context, data *User) error
 		Delete(ctx context.Context, id string) error
 	}
@@ -96,6 +98,30 @@ func (m *defaultUserModel) FindByPhone(ctx context.Context, phone string) (*User
 		return &resp, nil
 	case sqlc.ErrNotFound:
 		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
+
+func (m *defaultUserModel) ListByName(ctx context.Context, name string) ([]*User, error) {
+	query := fmt.Sprintf("select %s from %s where `nickname` like ? ", userRows, m.table)
+	var resp []*User
+	err := m.QueryRowsNoCacheCtx(ctx, &resp, query, fmt.Sprint("%", name, "%"))
+	switch err {
+	case nil:
+		return resp, nil
+	default:
+		return nil, err
+	}
+}
+
+func (m *defaultUserModel) ListByIds(ctx context.Context, ids []string) ([]*User, error) {
+	query := fmt.Sprintf("select %s from %s where `id` in ('%s') ", userRows, m.table, strings.Join(ids, "','"))
+	var resp []*User
+	err := m.QueryRowsNoCacheCtx(ctx, &resp, query)
+	switch err {
+	case nil:
+		return resp, nil
 	default:
 		return nil, err
 	}
