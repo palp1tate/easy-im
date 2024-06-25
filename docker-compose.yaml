@@ -62,7 +62,42 @@ services:
       - redis
       - mysql
     volumes:
-      - ./apps/user/rpc/etc/user.yaml:/app/apps/etc/user.yaml
+      - ./apps/user/rpc/etc/user.yaml:/app/etc/user.yaml
+    restart: unless-stopped
+    networks:
+      easy-im:
+
+  social-rpc:
+    image: easy-im-social-rpc:latest
+    container_name: easy-im-social-rpc
+    build:
+      context: .
+      dockerfile: deploy/dockerfile/social-rpc.Dockerfile
+    ports:
+      - "5002:5002"
+    depends_on:
+      - etcd
+      - redis
+      - mysql
+    volumes:
+      - ./apps/social/rpc/etc/social.yaml:/app/etc/social.yaml
+    restart: unless-stopped
+    networks:
+      easy-im:
+
+  user-api:
+    image: easy-im-user-api:latest
+    container_name: easy-im-user-api
+    build:
+      context: .
+      dockerfile: deploy/dockerfile/user-api.Dockerfile
+    ports:
+      - "8001:8001"
+    depends_on:
+      - etcd
+      - user-rpc
+    volumes:
+      - ./apps/user/api/etc/user.yaml:/app/etc/user.yaml
     restart: unless-stopped
     networks:
       easy-im:
