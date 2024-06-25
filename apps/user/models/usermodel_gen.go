@@ -21,7 +21,8 @@ var (
 	userRowsExpectAutoSet   = strings.Join(stringx.Remove(userFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	userRowsWithPlaceHolder = strings.Join(stringx.Remove(userFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
-	cacheUserIdPrefix = "cache:user:id:"
+	cacheUserIdPrefix    = "cache:user:id:"
+	cacheUserPhonePrefix = "cache:user:phone:"
 )
 
 type (
@@ -87,20 +88,32 @@ func (m *defaultUserModel) FindOne(ctx context.Context, id string) (*User, error
 }
 
 func (m *defaultUserModel) FindByPhone(ctx context.Context, phone string) (*User, error) {
-	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, phone)
+	userPhoneKey := fmt.Sprintf("%s%v", cacheUserPhonePrefix, phone)
 	var resp User
-	err := m.QueryRowCtx(ctx, &resp, userIdKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
-		query := fmt.Sprintf("select %s from %s where `phone` = ? limit 1", userRows, m.table)
-		return conn.QueryRowCtx(ctx, v, query, phone)
-	})
-	switch err {
-	case nil:
+
+	// 先查询缓存
+	err := m.GetCacheCtx(ctx, userPhoneKey, &resp)
+	if err == nil {
 		return &resp, nil
-	case sqlc.ErrNotFound:
-		return nil, ErrNotFound
-	default:
+	}
+
+	// 缓存未命中，查询数据库
+	query := fmt.Sprintf("select %s from %s where phone = ? limit 1", userRows, m.table)
+	err = m.QueryRowNoCacheCtx(ctx, &resp, query, phone)
+	if err != nil {
+		if err == sqlc.ErrNotFound {
+			return nil, ErrNotFound
+		}
 		return nil, err
 	}
+
+	// 数据库查询成功，将结果更新到缓存
+	err = m.SetCacheCtx(ctx, userPhoneKey, resp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
 }
 
 func (m *defaultUserModel) ListByName(ctx context.Context, name string) ([]*User, error) {
