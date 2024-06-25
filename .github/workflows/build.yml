@@ -106,3 +106,21 @@ jobs:
           push: true
           tags: palp1tate/easy-im-user-rpc:${{ env.new_version }},palp1tate/easy-im-user-rpc:latest
           platforms: linux/amd64
+      - name: Build and Push easy-im-social-rpc Image
+        if: env.should_push == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: deploy/dockerfile/social-rpc.Dockerfile
+          push: true
+          tags: palp1tate/easy-im-social-rpc:${{ env.new_version }},palp1tate/easy-im-social-rpc:latest
+          platforms: linux/amd64
+      - name: Build and Push easy-im-user-api Image
+        if: env.should_push == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: deploy/dockerfile/user-api.Dockerfile
+          push: true
+          tags: palp1tate/easy-im-user-api:${{ env.new_version }},palp1tate/easy-im-user-api:latest
+          platforms: linux/amd64
