@@ -3,6 +3,7 @@ package resultx
 import (
 	"context"
 	"net/http"
+	"reflect"
 
 	"github.com/palp1tate/easy-im/pkg/errorx"
 
@@ -19,11 +20,14 @@ type Response struct {
 }
 
 func Success(data interface{}) *Response {
-	return &Response{
+	res := &Response{
 		Code: 200,
 		Msg:  "Success!",
-		Data: data,
 	}
+	if !reflect.ValueOf(data).IsNil() {
+		res.Data = data
+	}
+	return res
 }
 
 func Fail(code int, err string) *Response {
