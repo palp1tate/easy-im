@@ -4,13 +4,11 @@ import (
 	"context"
 
 	"github.com/palp1tate/easy-im/apps/social/models"
-
-	"github.com/palp1tate/easy-im/pkg/errorx"
-	"github.com/pkg/errors"
-
 	"github.com/palp1tate/easy-im/apps/social/rpc/internal/svc"
 	"github.com/palp1tate/easy-im/apps/social/rpc/social"
+	"github.com/palp1tate/easy-im/pkg/errorx"
 
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 

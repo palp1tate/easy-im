@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"github.com/palp1tate/easy-im/apps/social/models"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
-
 	"github.com/palp1tate/easy-im/apps/social/rpc/internal/svc"
 	"github.com/palp1tate/easy-im/apps/social/rpc/social"
 	"github.com/palp1tate/easy-im/pkg/constants"
@@ -13,6 +11,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 var (
