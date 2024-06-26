@@ -91,6 +91,18 @@ services:
     networks:
       easy-im:
 
+  social-api:
+    image: palp1tate/easy-im-social-api:latest
+    container_name: easy-im-social-api
+    ports:
+      - "8002:8002"
+    depends_on:
+      - etcd
+      - social-rpc
+    volumes:
+      - ./apps/social/api/etc/social.yaml:/app/etc/social.yaml
+    restart: unless-stopped
+
 networks:
   easy-im:
     driver: bridge

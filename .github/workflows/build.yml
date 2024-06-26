@@ -124,3 +124,12 @@ jobs:
           push: true
           tags: palp1tate/easy-im-user-api:${{ env.new_version }},palp1tate/easy-im-user-api:latest
           platforms: linux/amd64
+      - name: Build and Push easy-im-social-api Image
+        if: env.should_push == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: deploy/dockerfile/social-api.Dockerfile
+          push: true
+          tags: palp1tate/easy-im-social-api:${{ env.new_version }},palp1tate/easy-im-social-api:latest
+          platforms: linux/amd64
