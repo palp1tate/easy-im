@@ -6,14 +6,14 @@ info (
 )
 
 type (
-	Friends {
+	Friend {
 		Id        int32  `json:"id,omitempty"`
 		FriendUid string `json:"friend_uid,omitempty"`
 		Nickname  string `json:"nickname,omitempty"`
 		Avatar    string `json:"avatar,omitempty"`
 		Remark    string `json:"remark,omitempty"`
 	}
-	FriendRequests {
+	FriendRequest {
 		Id           int64  `json:"id,omitempty"`
 		UserId       string `json:"user_id,omitempty"`
 		ReqUid       string `json:"req_uid,omitempty"`
@@ -22,7 +22,7 @@ type (
 		HandleResult int    `json:"handle_result,omitempty"`
 		HandleMsg    string `json:"handle_msg,omitempty"`
 	}
-	Groups {
+	Group {
 		Id              string `json:"id,omitempty"`
 		Name            string `json:"name,omitempty"`
 		Icon            string `json:"icon,omitempty"`
@@ -32,7 +32,7 @@ type (
 		Notification    string `json:"notification,omitempty"`
 		NotificationUid string `json:"notification_uid,omitempty"`
 	}
-	GroupMembers {
+	GroupMember {
 		Id            int64  `json:"id,omitempty"`
 		GroupId       string `json:"group_id,omitempty"`
 		UserId        string `json:"user_id,omitempty"`
@@ -42,7 +42,7 @@ type (
 		InviterUid    string `json:"inviter_uid,omitempty"`
 		OperatorUid   string `json:"operator_uid,omitempty"`
 	}
-	GroupRequests {
+	GroupRequest {
 		Id            int64  `json:"id,omitempty"`
 		UserId        string `json:"user_id,omitempty"`
 		GroupId       string `json:"group_id,omitempty"`
@@ -76,14 +76,14 @@ type (
 type (
 	FriendPutInListReq  {}
 	FriendPutInListResp {
-		List []*FriendRequests `json:"list"`
+		List []*FriendRequest `json:"list"`
 	}
 )
 
 type (
 	FriendListReq  {}
 	FriendListResp {
-		List []*Friends `json:"list"`
+		List []*Friend `json:"list"`
 	}
 )
 
@@ -119,14 +119,14 @@ type (
 		GroupId string `json:"group_id,omitempty"`
 	}
 	GroupPutInListResp {
-		List []*GroupRequests `json:"list,omitempty"`
+		List []*GroupRequest `json:"list,omitempty"`
 	}
 )
 
 type (
 	GroupListRep  {}
 	GroupListResp {
-		List []*Groups `json:"list,omitempty"`
+		List []*Group `json:"list,omitempty"`
 	}
 )
 
@@ -135,7 +135,7 @@ type (
 		GroupId string `json:"group_id,omitempty"`
 	}
 	GroupUserListResp {
-		List []*GroupMembers `json:"List,omitempty"`
+		List []*GroupMember `json:"List,omitempty"`
 	}
 )
 
