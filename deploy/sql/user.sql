@@ -8,5 +8,7 @@ CREATE TABLE `user` (
          `sex` tinyint COLLATE utf8mb4_unicode_ci DEFAULT NULL,
          `created_at` timestamp NULL DEFAULT NULL,
          `updated_at` timestamp NULL DEFAULT NULL,
-         PRIMARY KEY (`id`)
+         PRIMARY KEY (`id`),
+         UNIQUE (`id`),
+         UNIQUE (`phone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

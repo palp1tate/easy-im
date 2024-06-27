@@ -29,7 +29,7 @@ type (
 	userModel interface {
 		Insert(ctx context.Context, data *User) (sql.Result, error)
 		FindOne(ctx context.Context, id string) (*User, error)
-		FindByPhone(ctx context.Context, phone string) (*User, error)
+		FindOneByPhone(ctx context.Context, phone string) (*User, error)
 		ListByName(ctx context.Context, name string) ([]*User, error)
 		ListByIds(ctx context.Context, ids []string) ([]*User, error)
 		Update(ctx context.Context, data *User) error
@@ -62,11 +62,17 @@ func newUserModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) *d
 }
 
 func (m *defaultUserModel) Delete(ctx context.Context, id string) error {
+	data, err := m.FindOne(ctx, id)
+	if err != nil {
+		return err
+	}
+
 	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+	userPhoneKey := fmt.Sprintf("%s%v", cacheUserPhonePrefix, data.Phone)
+	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 		return conn.ExecCtx(ctx, query, id)
-	}, userIdKey)
+	}, userIdKey, userPhoneKey)
 	return err
 }
 
@@ -87,33 +93,24 @@ func (m *defaultUserModel) FindOne(ctx context.Context, id string) (*User, error
 	}
 }
 
-func (m *defaultUserModel) FindByPhone(ctx context.Context, phone string) (*User, error) {
+func (m *defaultUserModel) FindOneByPhone(ctx context.Context, phone string) (*User, error) {
 	userPhoneKey := fmt.Sprintf("%s%v", cacheUserPhonePrefix, phone)
 	var resp User
-
-	// 先查询缓存
-	err := m.GetCacheCtx(ctx, userPhoneKey, &resp)
-	if err == nil {
-		return &resp, nil
-	}
-
-	// 缓存未命中，查询数据库
-	query := fmt.Sprintf("select %s from %s where phone = ? limit 1", userRows, m.table)
-	err = m.QueryRowNoCacheCtx(ctx, &resp, query, phone)
-	if err != nil {
-		if err == sqlc.ErrNotFound {
-			return nil, ErrNotFound
+	err := m.QueryRowIndexCtx(ctx, &resp, userPhoneKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
+		query := fmt.Sprintf("select %s from %s where `phone` = ? limit 1", userRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, phone); err != nil {
+			return nil, err
 		}
+		return resp.Id, nil
+	}, m.queryPrimary)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlc.ErrNotFound:
+		return nil, ErrNotFound
+	default:
 		return nil, err
 	}
-
-	// 数据库查询成功，将结果更新到缓存
-	err = m.SetCacheCtx(ctx, userPhoneKey, resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return &resp, nil
 }
 
 func (m *defaultUserModel) ListByName(ctx context.Context, name string) ([]*User, error) {
@@ -142,19 +139,26 @@ func (m *defaultUserModel) ListByIds(ctx context.Context, ids []string) ([]*User
 
 func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, error) {
 	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, data.Id)
+	userPhoneKey := fmt.Sprintf("%s%v", cacheUserPhonePrefix, data.Phone)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
 		return conn.ExecCtx(ctx, query, data.Id, data.Avatar, data.Nickname, data.Phone, data.Password, data.Status, data.Sex)
-	}, userIdKey)
+	}, userIdKey, userPhoneKey)
 	return ret, err
 }
 
-func (m *defaultUserModel) Update(ctx context.Context, data *User) error {
+func (m *defaultUserModel) Update(ctx context.Context, newData *User) error {
+	data, err := m.FindOne(ctx, newData.Id)
+	if err != nil {
+		return err
+	}
+
 	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, data.Id)
-	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+	userPhoneKey := fmt.Sprintf("%s%v", cacheUserPhonePrefix, data.Phone)
+	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.Avatar, data.Nickname, data.Phone, data.Password, data.Status, data.Sex, data.Id)
-	}, userIdKey)
+		return conn.ExecCtx(ctx, query, newData.Avatar, newData.Nickname, newData.Phone, newData.Password, newData.Status, newData.Sex, newData.Id)
+	}, userIdKey, userPhoneKey)
 	return err
 }
 

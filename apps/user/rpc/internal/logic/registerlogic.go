@@ -5,17 +5,15 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/pkg/errors"
-
-	"github.com/palp1tate/easy-im/pkg/errorx"
-
 	"github.com/palp1tate/easy-im/apps/user/models"
 	"github.com/palp1tate/easy-im/apps/user/rpc/internal/svc"
 	"github.com/palp1tate/easy-im/apps/user/rpc/user"
 	"github.com/palp1tate/easy-im/pkg/encrypt"
+	"github.com/palp1tate/easy-im/pkg/errorx"
 	"github.com/palp1tate/easy-im/pkg/jwtx"
 	"github.com/palp1tate/easy-im/pkg/wuid"
 
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -36,7 +34,7 @@ func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Register
 }
 
 func (l *RegisterLogic) Register(in *user.RegisterReq) (*user.RegisterResp, error) {
-	userEntity, err := l.svcCtx.UserModel.FindByPhone(l.ctx, in.Phone)
+	userEntity, err := l.svcCtx.UserModel.FindOneByPhone(l.ctx, in.Phone)
 	if err != nil && !errors.Is(err, models.ErrNotFound) {
 		return nil, errors.Wrapf(errorx.NewDBErr(), "find user by phone err %v , req %v", err, in.Phone)
 	}

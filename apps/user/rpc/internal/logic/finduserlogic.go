@@ -34,7 +34,7 @@ func (l *FindUserLogic) FindUser(in *user.FindUserReq) (*user.FindUserResp, erro
 	)
 
 	if in.Phone != "" {
-		userEntity, err := l.svcCtx.UserModel.FindByPhone(l.ctx, in.Phone)
+		userEntity, err := l.svcCtx.UserModel.FindOneByPhone(l.ctx, in.Phone)
 		if err == nil {
 			users = append(users, userEntity)
 		}
